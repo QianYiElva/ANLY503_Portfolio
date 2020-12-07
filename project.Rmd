@@ -1,0 +1,541 @@
+---
+title: "Visualization Project: UFO sights in USA"
+output: flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(base)
+library(lubridate)
+library(tidyverse)
+library(anytime) 
+library(tibble)
+library(ggplot2)
+library(ggrepel)
+library(igraph)
+library(wordcloud)
+library(tidytext)
+library(janeaustenr)
+library(widyr)
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(RColorBrewer)
+library(quanteda)
+
+# data cleaning 
+ufo=read.csv('ufo_sighting_data.csv')
+# keep records that in US only 
+ufo=ufo[ufo$country=='us', ]
+
+# delete described_duration_of_encounter column, because all the encounter time was converted to length_of_encounter_seconds 
+# delete date_documented column because all we need is date of ufo observed 
+ufo=ufo %>% select(-c('described_duration_of_encounter','date_documented'))
+
+# convert state abbreviation to upper case 
+ufo$state.province= toupper(ufo$state.province) 
+
+# create time and date column 
+ufo<- ufo %>% add_column(date = NA, .after="Date_time")
+ufo<- ufo %>% add_column(time = NA, .after="date")
+ufo<- ufo %>% add_column(year = NA, .after="time")
+ufo<- ufo %>% add_column(month = NA, .after="year")
+ufo<- ufo %>% add_column(day = NA, .after="month")
+ufo<- ufo %>% add_column(hour = NA, .after="day")
+ufo<- ufo %>% add_column(weekdays = NA, .after="hour")
+
+# split date and time into different columns
+ufo$date=sapply(ufo$Date_time, function(x) as.character(strsplit(x, ' ')[[1]][1]))
+ufo$time=sapply(ufo$Date_time, function(x) as.character(strsplit(x, ' ')[[1]][2]))
+
+# convert date to year, month, day separately 
+ufo$month= sapply(ufo$date, function(x) as.numeric(strsplit(x, '/')[[1]][1]))
+ufo$day= sapply(ufo$date, function(x) as.numeric(strsplit(x, '/')[[1]][2]))
+ufo$year= sapply(ufo$date, function(x) as.numeric(strsplit(x, '/')[[1]][3]))
+
+# convert date to weekdays 
+ufo$weekdays=weekdays(as.Date(ufo$date,'%m/%d/%Y'))
+
+# convert time to hour 
+ufo$hour= sapply(ufo$time, function(x) as.numeric(strsplit(x, ':')[[1]][1]))
+
+# convert latitude and longitude into numeric value 
+ufo$latitude=as.numeric(ufo$latitude)
+ufo$longitude=as.numeric(ufo$longitude)
+
+# drop na value and empty value
+# reference: https://stackoverflow.com/questions/9126840/delete-rows-with-blank-values-in-one-particular-column
+ufo=ufo %>%na_if('') %>%na.omit
+
+```
+
+About
+=========================================
+
+Column
+-----------------------------------------
+Dataset Introduction: 
+
+This dataset included 80000+ records about UFO observations in US states or Canada from year 1949 to year 2014. It has longitude, latitude data (geographical), and UFO observer description (text) as well as specific year/month/date data (time series). The majority records are about UFO inside the United States. In this project, I focused more on the records within the US.
+
+Here are the specific column descriptions:
+
+* Date_time - standardized date and time of sighting
+
+* city - location of UFO sighting
+
+* state/province - the US state or Canadian province, appears blank for other locations
+
+* country - Country of UFO sighting
+
+* UFO_shape - a one word description of the "spacecraft"
+
+* length_of_encounter_seconds - standardized to seconds, length of the observation of the UFO
+
+* described_duration _of_encounter - raw description of the length of the encounter 
+
+* description - text description of the UFO encounter
+
+* date_documented - when was the UFO sighting reported
+
+* latitude - latitude
+
+* longitude - longitude
+
+
+Dataset Link: https://www.kaggle.com/camnugent/ufo-sightings-around-the-world
+
+
+Visualization Overview: 
+In this project, I created pie chart, histogram, bar chart, violin plot, heatmap, geographical map, network, time series plot, text wordcloud, and text relative word frequency plot. Through these visualizations, we could generate some insights about UFOs: 
+
+* The light, triangle, circle, and fireball shape are the top 4 shapes among all the UFO recorded. 
+
+* According to observers description, the common features of these frequently appeared shape UFOs are red color and light. 
+
+* Flash and chevron shapes have relatively shorter observed time duration while delta and diamond shapes have relatively longer observed time duration.
+
+* UFOs are more likely to appear on Weekends from June through November. 
+
+* States that are near US coastline have more UFO records. The great California area and the great New York area have more UFO records than other states in US.
+
+* California seems to have a large amount of light shape UFOs and relatively rich number of circle shape UFOs. Taxes and Washington states also have rich light shape UFOs.
+
+* The amount of UFOs increased a lot since year 1997. Since January 2020, the amount of UFO records has an increasing trend with growing fluctuation and variation. 
+
+
+
+Exploratory Data Analysis {.storyboard}
+=========================================
+
+### EDA 1: Pie Chart: --During 1910 to 2014, the most frequently appeared shapes are: light, triangle, circle, and fireball. Some shapes are extremely rare, for example, hexagon, flare, crescent, and pyramid.
+
+```{r pie_chart,fig.height = 10, fig.width = 20, fig.align = "center" }
+df1=ufo %>% select(c("UFO_shape")) %>% group_by(UFO_shape) %>% count() %>% rename(shape_count=n)
+df1=df1[with(df1,order(shape_count,decreasing = TRUE)), ]
+# pie chart 
+# reference: https://www.r-graph-gallery.com/piechart-ggplot2.html
+# reference: https://stackoverflow.com/questions/42654132/r-pie-chart-labels-overlap-ggplot2
+
+df1 <- df1 %>% 
+  arrange(desc(UFO_shape)) %>%
+  mutate(prop = shape_count / sum(df1$shape_count) *100) # calculate the proportion 
+
+# prepare for the annotation labels
+my_labels <- tibble(x.breaks = seq(1, 1.5, length.out =28),
+                    y.breaks =  cumsum(df1$shape_count)-df1$shape_count/2,
+                    labels = paste(df1$UFO_shape, paste0(round(df1$prop,2), "%"), sep='\n'),
+                    UFO_shape = df1$UFO_shape)
+
+ggplot(df1, aes(x = 1, y = shape_count, fill = UFO_shape)) +
+  labs(title="UFO shapes from 1910 to 2014", size=15) +
+  geom_bar(stat="identity", color='black') + 
+  coord_polar(theta='y') + 
+  guides(fill=guide_legend(title="UFO Shapes", override.aes=list(colour=NA)))+
+  scale_fill_hue(c=45, l=70)+ # Setting luminance and saturation (chromaticity)
+  theme_void()+ # remove the default theme 
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20))+
+  geom_label_repel(data = my_labels, aes(x = x.breaks, y = y.breaks, label = labels, fill = UFO_shape),label.padding = unit(0.13, "lines"),size = 2,show.legend = FALSE,inherit.aes = FALSE) # make sure the annotation not overlap each other 
+```
+
+
+
+### EDA 2: Histogram of UFO Time Duration--After the log operation, the time duration data are almost normally distributed.  
+
+```{r hist,fig.height = 10, fig.width = 18, fig.align = "center" }
+par(mfrow=c(1,2))
+df2=ufo %>% select(c("UFO_shape","length_of_encounter_seconds")) 
+df2$length_of_encounter_seconds=as.numeric(df2$length_of_encounter_seconds)
+hist(df2$length_of_encounter_seconds,breaks=30, main="Seconds among UFOs (before log)", xlab="seconds", ylab="Frequency", col="lightpink")
+
+# since time have very large range, log value may better
+# convert seconds to log seconds 
+df2$length_of_encounter_seconds=log(df2$length_of_encounter_seconds)
+df2=df2 %>% rename(log_seconds=length_of_encounter_seconds)
+hist(df2$log_seconds, main="Log seconds among UFOs", xlab="log seconds", ylab="Frequency", col="lightblue")
+```
+
+
+### EDA 3: Violin Plot: --Flash and chevron shapes have relatively shorter observed time duration while delta and diamond shapes have relatively longer observed time duration.
+
+```{r fig_violin, fig.height = 10, fig.width = 30, fig.align = "center"}
+ggplot(df2, aes(x=UFO_shape, y=log_seconds, fill=UFO_shape)) + 
+  geom_violin(trim=FALSE)+
+  scale_fill_hue(c=45, l=70)+
+  geom_boxplot(width=0.2)+
+   labs(title="UFO Log Seconds Among Different Shapes")+theme_minimal()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=40), 
+        axis.text.x = element_text(color = "black", size = 15, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 15, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size = 20, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 20, hjust = 0.5, vjust = 0.5, face = "plain"),
+        legend.position = "none")+
+  xlab('UFO Shapes')+
+  ylab('Log Seconds')
+```
+
+
+### EDA 4: Bar Chart: --The amount of UFO increased a lot since year 1997 
+
+```{r fig_bar_count, fig.height = 5, fig.width = 10, fig.align = "center"}
+df3=ufo %>% select(c('year', 'UFO_shape'))
+ggplot(df3, aes(year, fill="lightorgange"))+geom_bar()+
+  scale_fill_hue(c=45, l=70)+
+  labs(title="UFO Count from 1910 to 2014")+
+  xlab('Year')+
+  ylab('Yearly Count of UFOs')+theme_minimal()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), legend.position = "none",
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"))
+
+```
+
+
+### EDA 5：Bar Chart: --Dive into States, the top 4 states with UFO recourds are CA, FL, WA, TX 
+```{r fig_bar_state, fig.height = 7, fig.width = 7, fig.align = "center"}
+df4=ufo %>% select(c("state.province")) %>% group_by(state.province) %>% count() %>% rename(state_count=n)
+df4=df4[with(df4,order(state_count,decreasing = TRUE)), ]
+ggplot(data = df4, mapping = aes(x = reorder(state.province, state_count), state_count)) + 
+  geom_bar(aes(fill = state_count),stat = "identity") + coord_flip()+
+  scale_fill_gradient(low = "lightyellow", high = "darkgreen", na.value = NA)+
+  labs(title="UFO Counts in Each States")+theme_minimal()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
+        axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size = 12, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 12, hjust = 0.5, vjust = 0.5, face = "plain"),
+        legend.position = "none")+
+  xlab('State Abbreviation')+
+  ylab('UFO Count')
+# the top 4 states are CA, FL, WA, TX 
+
+```
+
+
+Heatmap {.storyboard}
+=========================================
+
+### Heatmap for Year 1990s: UFOs are more frequently appeared from June to November, with relatively high frequency on Tuesday 
+
+```{r fig_heat1990, fig.height = 6, fig.width = 12, fig.align = "center"}
+# for year 1990-1999
+df1990=ufo %>% select(c("year", "month", "weekdays")) %>% filter(year>=1990 & year<=1999)
+df1990=df1990 %>% group_by(month, weekdays) %>% count() %>% rename(count=n)
+df1990$month=as.factor(df1990$month)
+df1990$weekdays=as.factor(df1990$weekdays)
+df1990$weekdays <- factor(df1990$weekdays, levels= c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday","Sunday"))
+
+ggplot(df1990, aes(month, weekdays, fill= count)) +
+  geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
+   labs(title="Heatmap of Weekdays and Month for 1990s")+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))+
+  xlab('Month')+
+  ylab('Weekdays')
+```
+
+### Heatmap for Year 2000s: UFOs are more frequently appeared from June to November, with high frequency during weekends 
+
+```{r fig_heat2000, fig.height = 6, fig.width = 12, fig.align = "center"}
+# for year 2000-2009
+df2000=ufo %>% select(c("year", "month", "weekdays")) %>% filter(year>=2000 & year<=2009)
+df2000=df2000 %>% group_by(month, weekdays) %>% count() %>% rename(count=n)
+df2000$month=as.factor(df2000$month)
+df2000$weekdays=as.factor(df2000$weekdays)
+df2000$weekdays <- factor(df2000$weekdays, levels= c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday","Sunday"))
+
+ggplot(df2000, aes(month, weekdays, fill= count)) +
+  geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
+   labs(title="Heatmap of Weekdays and Month for 2000s")+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))+
+  xlab('Month')+
+  ylab('Weekdays')
+```
+
+### Heatmap for Year 2010s: UFOs are more frequently appeared from June to September, with high frequency on  Saturday  
+
+```{r fig_heat2010, fig.height = 6, fig.width = 12, fig.align = "center"}
+# for year 2010-2019
+df2010=ufo %>% select(c("year", "month", "weekdays")) %>% filter(year>=2010 & year<=2019)
+df2010=df2010 %>% group_by(month, weekdays) %>% count() %>% rename(count=n)
+df2010$month=as.factor(df2010$month)
+df2010$weekdays=as.factor(df2010$weekdays)
+df2010$weekdays <- factor(df2010$weekdays, levels= c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday","Sunday"))
+
+ggplot(df2010, aes(month, weekdays, fill= count)) +
+  geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
+   labs(title="Heatmap of Weekdays and Month for 2010s")+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))+
+  xlab('Month')+
+  ylab('Weekdays')
+```
+
+
+Geographical Visualization {.storyboard}
+=========================================
+
+### Geographical Map:-- States that are near US coastline have more UFO records. The great California area and the great New York area have more UFO records than other states in US.
+```{r fig_geo, fig.height = 9, fig.width = 15, fig.align = "center"}
+MainStates <- map_data("state")
+# prepare data and join with the map 
+df6=ufo %>% select(c("state.province")) %>% group_by(state.province) %>% count() %>% rename(state_count=n, region=state.province)
+# remove HI, PR, and AK 
+df6=df6 %>% filter(region!='HI' & region!='AK' & region!='PR')
+
+# convert state abbreviation into lowercase full state name 
+# reference: https://favorableoutcomes.wordpress.com/2012/10/19/create-an-r-function-to-convert-state-codes-to-full-state-name/
+#'x' is the column of a data.frame that holds 2 digit state codes
+stateFromLower <-function(x) {
+  #read 52 state codes into local variable [includes DC (Washington D.C. and PR (Puerto Rico)]
+  st.codes<-data.frame(
+                      state=as.factor(c("AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA",
+                                         "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME",
+                                         "MI", "MN", "MO", "MS",  "MT", "NC", "ND", "NE", "NH", "NJ", "NM",
+                                         "NV", "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN",
+                                         "TX", "UT", "VA", "VT", "WA", "WI", "WV", "WY")),
+                      full=as.factor(c("alaska","alabama","arkansas","arizona","california","colorado",
+                                       "connecticut","district of columbia","delaware","florida","georgia",
+                                       "hawaii","iowa","idaho","illinois","indiana","kansas","kentucky",
+                                       "louisiana","massachusetts","maryland","maine","michigan","minnesota",
+                                       "missouri","mississippi","montana","north carolina","north dakota",
+                                       "nebraska","new hampshire","new jersey","new mexico","nevada",
+                                       "new york","ohio","oklahoma","oregon","pennsylvania","puerto rico",
+                                       "rhode island","south carolina","south dakota","tennessee","texas",
+                                       "utah","virginia","vermont","washington","wisconsin",
+                                       "west virginia","wyoming"))
+                       )
+     #create an nx1 data.frame of state codes from source column
+  st.x<-data.frame(state=x)
+     #match source codes with codes from 'st.codes' local variable and use to return the full state name
+  refac.x<-st.codes$full[match(st.x$state,st.codes$state)]
+     #return the full state names in the same order in which they appeared in the original source
+  return(refac.x)
+}
+df6$region<-stateFromLower(df6$region)
+
+# merge dataset 
+MergedStates <- inner_join(MainStates, df6, by = "region")
+
+# data preprocessing for geompoint 
+geompoint =ufo %>% select(c("state.province", "latitude", "longitude")) %>% rename(region=state.province) %>% filter(region!='HI' & region!='AK' & region!='PR')
+
+# reference: https://remiller1450.github.io/s230s19/Intro_maps.html
+ggplot()+ geom_polygon(data=MergedStates, aes(x=long, y=lat, group=group, fill = state_count), color="white", size = 0.2)+
+  scale_fill_continuous(name="UFO Records Count", 
+                        low = "lightblue", high = "darkblue",
+                         na.value = "grey50") +
+  geom_point(data=filter(geompoint),aes(x=longitude,y=latitude),alpha=.5,size=.5, color="darkred")+
+  labs(title="UFO Records in US Main States")+
+   xlab('Longitude')+
+  ylab('Latitude')+theme_minimal()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
+        axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =15, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =15, hjust = 0.5, vjust = 0.5, face = "plain"))
+
+```
+
+Network {.storyboard}
+=========================================
+
+### Shape and States Network:-- California seems to have a large amount of light shape UFOs and relatively rich number of circle shape UFOs. Taxes and Washington states also have rich light shape UFOs.
+
+```{r fig_network, fig.height = 10, fig.width = 10, fig.align = "center"}
+df7=ufo %>% select(c("UFO_shape","state.province"))
+# filter out states that have less than 200 count of UFO records 
+remain_states=df7 %>% group_by(state.province) %>% count() %>% filter(n>200) %>% select(c("state.province"))
+# filter out shapes that have less than 200 count of UFO records 
+remain_shape=df7 %>% group_by(UFO_shape) %>% count() %>% filter(n>200)%>% select(c("UFO_shape"))
+# combine dataset 
+df7=ufo %>% select(c("UFO_shape","state.province")) %>% inner_join(remain_states, by="state.province") %>% inner_join(remain_shape,by = "UFO_shape") %>% drop_na()
+
+df7=df7%>% group_by(state.province, UFO_shape) %>% count() %>% rename(count=n, target=state.province, source=UFO_shape)
+
+nodes <- data.frame(
+    name=c(as.vector(unique(df7$target)), as.vector(unique(df7$source))),
+    type=c(rep("state",46), rep("shape",20))
+    )
+
+network <- graph_from_data_frame(d=df7, vertices=nodes,directed=F) 
+
+# Create a vector of color
+coul=c("tomato", "gold")
+my_color <- coul[as.numeric(as.factor(V(network)$type))]
+
+plot(network,edge.width=df7$count/250, vertex.size=5, vertex.color=my_color,vertex.frame.color="#ffffff", vertex.label.color="black",main="Network of Shape and States")
+```
+
+
+Time Series {.storyboard}
+=========================================
+
+### UFO Time Series:-- Since January 2020, the amount of UFO records has an increasing trend with growing fluctuation and variation 
+
+```{r fig_time_series, fig.height = 10, fig.width = 20, fig.align = "center"}
+df8=ufo %>% select(c("date","year","month","day"))
+df8$DATE=paste0(df8$year,'-',df8$month,'-',df8$day)
+df8$DATE=as.Date(df8$DATE)
+df8=df8 %>% group_by(DATE) %>% count() %>% rename(UFO_Count=n)
+# Before year 1990, the UFO count are very limited, I will focus on the time series after 1990  
+df8=df8 %>% filter(DATE>='1990-01-01')
+# range(df8$DATE)
+
+ggplot(df8, aes(x=DATE, y=UFO_Count)) +
+  geom_line(color="#69b3a2") + 
+  geom_smooth(method='loess', size=1, se=F, span=0.05, formula = y~x)+
+  scale_x_date(date_labels = "%Y %b %d")+
+  labs(title="UFO Time Series from 1990 to 2014")+
+   xlab('Date')+
+  ylab('UFO Count')+theme_minimal()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
+        axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =15, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =15, hjust = 0.5, vjust = 0.5, face = "plain"))
+
+
+```
+
+Text Visualization {.storyboard}
+=========================================
+
+### UFO Description Wordcloud: --Most descriptions are about light, color and moving speed
+
+```{r fig_wordcloud}
+# reference http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know
+df9=ufo %>% select(c("description"))
+text<- paste(df9$description,collapse = " ")  #All titles into one
+
+# Load the data as a corpus
+docs <- Corpus(VectorSource(text))
+
+# text data cleaning
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+docs <- tm_map(docs, toSpace, "/")
+docs <- tm_map(docs, toSpace, "@")
+docs <- tm_map(docs, toSpace, "\\|")
+
+# Convert the text to lower case
+docs <- tm_map(docs, content_transformer(tolower))
+# Remove numbers
+docs <- tm_map(docs, removeNumbers)
+# Remove english common stopwords
+docs <- tm_map(docs, removeWords, stopwords("english"))
+# Remove punctuations
+docs <- tm_map(docs, removePunctuation)
+# Eliminate extra white spaces
+docs <- tm_map(docs, stripWhitespace)
+# Text stemming
+docs <- tm_map(docs, stemDocument)
+
+
+# plot the word frequency 
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+
+set.seed(213)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "PuOr"))
+```
+
+
+### Relative Word Frequency by Top 4 Shape:--For the top 4 shapes, their common features are red color and lights 
+```{r fig_rwf}
+# reference: https://quanteda.io/articles/pkgdown/examples/plotting.html
+df10=ufo %>% select(c('description', 'UFO_shape')) %>% filter(UFO_shape=='light'|UFO_shape=='triangle'|UFO_shape=='circle'|UFO_shape=='fireball')
+
+# light 
+light_corpus=df10 %>% filter(UFO_shape=='light')
+light_corpus=paste(light_corpus$description,collapse = " ")  #combine all discriptions into one 
+light_corpus=gsub("[^a-zA-Z]", " ", light_corpus) # remove numbers and special charecter 
+light_corpus=light_corpus %>% dfm(stem = TRUE,remove = stopwords("english"), remove_punct = TRUE) %>% dfm_weight(scheme = "prop")
+light_freq_weight <- textstat_frequency(light_corpus, n = 15, groups = "light")
+
+# triangle 
+triangle_corpus=df10 %>% filter(UFO_shape=='triangle')
+triangle_corpus=paste(triangle_corpus$description,collapse = " ")  #combine all discriptions into one 
+triangle_corpus=gsub("[^a-zA-Z]", " ", triangle_corpus)# remove numbers and special charecter 
+triangle_corpus=triangle_corpus %>% dfm(stem = TRUE,remove = stopwords("english"), remove_punct = TRUE) %>% dfm_weight(scheme = "prop")
+triangle_freq_weight <- textstat_frequency(triangle_corpus, n = 15, groups = "triangle")
+
+# circle
+circle_corpus=df10 %>% filter(UFO_shape=='circle')
+circle_corpus=paste(circle_corpus$description,collapse = " ") #combine all discriptions into one 
+circle_corpus=gsub("[^a-zA-Z]", " ", circle_corpus)# remove numbers and special charecter 
+circle_corpus=circle_corpus %>% dfm(stem = TRUE,remove = stopwords("english"), remove_punct = TRUE) %>% dfm_weight(scheme = "prop")
+circle_freq_weight <- textstat_frequency(circle_corpus, n = 15, groups = "circle")
+
+# fireball
+fireball_corpus=df10 %>% filter(UFO_shape=='fireball')
+fireball_corpus=paste(fireball_corpus$description,collapse = " ")  #combine all discriptions into one 
+fireball_corpus=gsub("[^a-zA-Z]", " ", fireball_corpus)# remove numbers and special charecter 
+fireball_corpus=fireball_corpus %>% dfm(stem = TRUE,remove = stopwords("english"), remove_punct = TRUE) %>% dfm_weight(scheme = "prop")
+fireball_freq_weight <- textstat_frequency(fireball_corpus, n = 15, groups = "fireball")
+
+# concatenate these data 
+freq_data=rbind(light_freq_weight, triangle_freq_weight,circle_freq_weight , fireball_freq_weight)
+
+
+ggplot(data = freq_data, aes(x = nrow(freq_data):1, y = frequency, color=group)) +
+     geom_point() +
+     facet_wrap(~ group, scales = "free") +
+     coord_flip() +
+     scale_x_continuous(breaks = nrow(freq_data):1,labels = freq_data$feature) +
+     labs(x = NULL, y = "Relative Frequency", title='Relative Word Frequency for Top 4 Shapes')+
+  theme_bw()+theme(panel.border = element_rect(color = "darkgrey", size = 2),
+                   plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+                   legend.title = element_blank(),
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))
+
+
+```
+
+
+
+
+
+
+
+
+
