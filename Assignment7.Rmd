@@ -1,0 +1,132 @@
+---
+title: "Assignment7 Network"
+author: "Qian Yi"
+date: "11/4/2020"
+output: html_document
+---
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center',include=FALSE}
+library(tidyverse)
+library(tidyxl)
+library(janitor)
+library(igraph)
+library(tidygraph)
+library(circlize)
+library(dplyr)
+library(magrittr)
+
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center',include=FALSE}
+migrations=readxl::read_xls('/Users/qianyi/Desktop/Data/State_to_State_Migrations_Table_2018.xls', skip=4)
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center',include=FALSE}
+# drop foot notes (bottom 9 rows)
+migrations=migrations[1:(dim(migrations)[1]-9),] 
+
+# drop rows with all NA values 
+migrations=migrations %>% remove_empty("rows")
+
+# rename 
+migrations=migrations %>% rename("current_residence"="Current residence in...1")
+
+# remove duplicate columns (state information)
+migrations <- migrations[, -grep("Current+\\s+residence+\\s+in", colnames(migrations))]
+
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center',include=FALSE}
+# New York, Texas, Maryland, California 
+state4=cbind(migrations[, "current_residence"], migrations[, which(migrations[1,]=='New York')], migrations[, which(migrations[1,]=='Texas')], migrations[, which(migrations[1,]=='Maryland')], migrations[, which(migrations[1,]=='California')])
+names(state4)[2:5]=c('New York', 'Texas', 'Maryland', 'California')
+
+# drop the top 2 rows and NA value rows 
+state4=state4[4:(dim(state4)[1]),]
+state4=state4 %>% drop_na()
+
+# remove Puerto Rico
+state4=state4[which(state4["current_residence"]!='Puerto Rico'),]
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center',include=FALSE}
+# New York 
+nydata=state4 %>% select("current_residence", "New York") 
+nydata['New York'] %<>% mutate_if(is.character,as.numeric)
+nydata=nydata[order(-nydata['New York']),] %>% top_n(10) 
+source=c('New York')
+df1=cbind(source,nydata)
+df1=df1 %>% rename(c('target'='current_residence', 'count'='New York'))
+
+# Texas
+txdata=state4 %>% select("current_residence", "Texas") 
+txdata['Texas'] %<>% mutate_if(is.character,as.numeric)
+txdata=txdata[order(-txdata['Texas']),] %>% top_n(10) 
+source=c('Texas')
+df2=cbind(source,txdata)
+df2=df2 %>% rename(c('target'='current_residence', 'count'='Texas'))
+
+
+# Maryland
+mddata=state4 %>% select("current_residence", "Maryland") 
+mddata['Maryland'] %<>% mutate_if(is.character,as.numeric)
+mddata=mddata[order(-mddata['Maryland']),] %>% top_n(10) 
+source=c('Maryland')
+df3=cbind(source,mddata)
+df3=df3 %>% rename(c('target'='current_residence', 'count'='Maryland'))
+
+# California 
+cadata=state4 %>% select("current_residence", "California") 
+cadata['California'] %<>% mutate_if(is.character,as.numeric)
+cadata=cadata[order(-cadata['California']),] %>% top_n(10) 
+source=c('California')
+df4=cbind(source,cadata)
+df4=df4 %>% rename(c('target'='current_residence', 'count'='California'))
+
+
+# combine the dataset together 
+network=rbind(df1,df2,df3,df4)
+
+# save the data 
+#write.csv(network, "network.csv")
+
+# show the some rows of the dataset 
+#head(network,10)
+```
+
+
+```{r, fig.height = 20, fig.width = 15, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+# set grid color
+
+chordDiagram(network, annotationTrack = "grid", 
+    preAllocateTracks = list(track.height = max(strwidth(unlist(dimnames(network))))))
+circos.track(track.index = 1, panel.fun = function(x, y) {
+    circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index, 
+        facing = "clockwise", niceFacing = TRUE,  adj = c(0, 0.8),cex=2)
+}, bg.border = NA) # here set bg.border to NA is important
+
+title("Top 10 Migration Destinations of NY, TX, MD and CA", cex.main = 2)
+
+```
+
+### Discussion of the Visualization 
+
+* As the graph shown above, the top 10 migration destinations of New York, Texas, Maryland and California were displayed. 
+
+* It seems that Florida and Arizona were  popular places for people to migrate, maybe due to the warm weather. 
+
+* It is also obvious that: Compared with Maryland, the other 3 states (California, Texas and New York) had more people to move away during the previous year. 
+
+
+
+
+
+
+
+
+
+
+
+
+

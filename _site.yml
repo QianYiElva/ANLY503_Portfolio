@@ -11,6 +11,8 @@ navbar:
       href: Assignment5.html
     - text: "Visualization A6"
       href: Assignment6.html
+    - text: "Visualization A7"
+      href: Assignment7.html
     - text: "Project"
       href: project.html
       
