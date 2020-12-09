@@ -110,7 +110,7 @@ title("Top 10 Migration Destinations of NY, TX, MD and CA", cex.main = 2)
 
 ```
 
-### Discussion of the Visualization 
+#### Discussion of the Visualization 
 
 * As the graph shown above, the top 10 migration destinations of New York, Texas, Maryland and California were displayed. 
 
