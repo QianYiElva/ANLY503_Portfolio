@@ -9,6 +9,8 @@ navbar:
       href: about.html
     - text: "Visualization A5"
       href: Assignment5.html
+    - text: "Visualization A6"
+      href: Assignment6.html
     - text: "Project"
       href: project.html
       
