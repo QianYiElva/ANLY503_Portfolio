@@ -12,7 +12,7 @@
 <meta name="author" content="Qian Yi" />
 
 
-<title>Visualization A5</title>
+<title>Visualization A2</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -311,65 +311,76 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Visualization A5</h1>
+<h1 class="title toc-ignore">Visualization A2</h1>
 <h4 class="author">Qian Yi</h4>
-<h4 class="date">12/7/2020</h4>
+<h4 class="date">12/9/2020</h4>
 
 </div>
 
 
-<div id="task-1.-explore-all-accounts.-create-visualizations-that-combine-or-these-account-characteristics" class="section level4">
-<h4>Task 1. Explore all accounts. Create visualizations that combine or these account characteristics:</h4>
+<p><img src="webimage/a2p1.png" /></p>
+<ol style="list-style-type: decimal">
+<li><p>Whether you feel the chart is good or bad: I feel this chart is bad, the title and legend bring some confusion to me.</p></li>
+<li><p>A criticism of the chart:</p></li>
+</ol>
 <ul>
-<li><ol style="list-style-type: decimal">
-<li>Whether an account has a credit card or not</li>
-</ol></li>
-<li><ol start="2" style="list-style-type: decimal">
-<li>Whether an account has a loan or not</li>
-</ol></li>
-<li><ol start="3" style="list-style-type: decimal">
-<li>The average balance for the account</li>
-</ol></li>
+<li><p>For the legend: “no change” should be the same color of 0%. In the chart, some part are white and some are gray. It doesn’t make sense to differentiate “no change” and “increasing 0%” .</p></li>
+<li><p>The title of the chart said 2020 vs. 2050, but from the chart, readers may feel hard to identify this is 2020 or 2050. This may bring some confusion.</p></li>
 </ul>
-<p>Exploration ： <img src="Assignment5_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li>Ways to improve the chart</li>
+</ol>
 <ul>
-<li>From the exploration, we can see that most accounts did not have credit card, most accounts did not have loans. The distribution of average balance of accounts is right skewed.</li>
+<li><p>Change the legend. Let gray color be “decrease” and remove “no change” from gray legend.</p></li>
+<li><p>Add a year label at the bottom of the map graph, let people know this graph is for year 2050.</p></li>
 </ul>
-</div>
-<div id="visualize-with-facet-explore-the-average-balance-for-accounts-withwithout-loan-and-with-different-number-of-credit-cards" class="section level4">
-<h4>Visualize with facet: explore the average balance for accounts with/without loan and with different number of credit cards</h4>
-<p><img src="Assignment5_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="webimage/a2p2.png" /></p>
+<ol style="list-style-type: decimal">
+<li><p>Whether you feel the chart is good or bad: I like the creativity design of using “teeth-shape” to represent bar chat. But I also feel the graph may also bring misleading information due to the triangle bar shape.</p></li>
+<li><p>A criticism of the chart</p></li>
+</ol>
 <ul>
-<li>Most account did not have credit cards. Very limited accounts have both credit cards and loans.</li>
+<li>The teeth-shape bar makes me feel the middle part represent higher value while the left and right sides represent lower value. For example, I may feel 82’ and 84’ have lower value than 83’.</li>
 </ul>
-</div>
-<div id="task-2.-what-is-the-distribution-of-all-loans-and-what-are-their-characteristics" class="section level4">
-<h4>Task 2. What is the distribution of all loans and what are their characteristics?</h4>
-<p><img src="Assignment5_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="what-is-the-distribution-of-all-loans-and-what-are-their-characteristics" class="section level4">
-<h4>What is the distribution of all loans and what are their characteristics?</h4>
+<ol start="3" style="list-style-type: decimal">
+<li>Ways to improve the chart</li>
+</ol>
 <ul>
-<li><p>According to these visualization plots, the distribution of all loan amount is right skewed.</p></li>
-<li><p>The loan payment is also right skewed.The characteristic is that: both loan amount and loan payment amount are more likely to be relatively smaller number. This is reasonable due to the risk control of banks.</p></li>
-<li><p>For other characteristics, relatively more accounts have current loan instrad of expried loan. Besides, more accounts with loan are not in default, which means most of them are good loans. For loan terms, among the accounts with records, surprisingly, the differendt loan terms have almost equally proportions.</p></li>
+<li>Change the teeth bar shape to normal bar chart shape.</li>
 </ul>
-</div>
-<div id="task-3.-is-there-a-relationship-between-a-good-or-bad-loan-and-the-time-between-an-account-is-opened-an-the-loan-is-created" class="section level4">
-<h4>Task 3. Is there a relationship between a good or bad loan and the time between an account is opened an the loan is created?</h4>
+<p><img src="webimage/a2p3.png" /></p>
+<ol style="list-style-type: decimal">
+<li><p>Whether you feel the chart is good or bad: I feel the char is bad, because too much information are in this chart but the mixture of information may bring confusion.</p></li>
+<li><p>A criticism of the chart</p></li>
+</ol>
 <ul>
-<li>Is there a specific set of accounts that seem to be at higher or lower risk of defaulting?</li>
+<li><p>Since these are time series data. It will be more clear to use line chars to represent different counties instead of stacked bar.</p></li>
+<li><p>Actually, I didn’t know what information the red arrow want to tell without any explanation.</p></li>
 </ul>
-<p><img src="Assignment5_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li>Ways to improve the chart</li>
+</ol>
 <ul>
-<li><p>Bad loans are likely to have smaller value od date difference between open account and create loan.</p></li>
-<li><p>According to the comparison, good loans have higher frequency of longer date difference than bad loans. This means, if the the date difference between account open and loan created is small, then it may have higher risk of being bad loan.</p></li>
+<li><p>Change the stacked bar chart to line chart with different color represent different countries.</p></li>
+<li><p>Remove the red arrow</p></li>
 </ul>
-</div>
-<div id="task-4.-for-the-account-with-the-highest-number-of-transactions-make-a-time-series-line-plot-for-the-behavior-of-the-account-over-time-including-all-debits-and-credits-the-different-methods-and-the-with-the-different-categories." class="section level4">
-<h4>Task 4. For the account with the highest number of transactions, make a time series line plot for the behavior of the account over time, including all debits and credits, the different methods, and the with the different categories.</h4>
-<p><img src="Assignment5_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
+<p><img src="webimage/a2p4.png" /></p>
+<ol style="list-style-type: decimal">
+<li><p>Whether you feel the chart is good or bad: I feel bad about the chart</p></li>
+<li><p>A criticism of the chart</p></li>
+</ol>
+<ul>
+<li><p>I cannot understand the purple color appears in both top 4 favorite and least favorite colors in age 25-35 and 36-50.</p></li>
+<li><p>I guess gender may affect the preference of colors. But I’m not sure if this charts considered gender factor, because the figures include both male and female in the same row.</p></li>
+<li><p>The sizes of areas different colors may misleading: larger area may represent larger proportion.</p></li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>Ways to improve the chart:</li>
+</ol>
+<ul>
+<li><p>Use bar chart to represent the preference, the length of each bar represent the preference level.</p></li>
+<li><p>Draw 2 charts, one is for male and another is for female</p></li>
+</ul>
 
 
 

@@ -1,0 +1,18 @@
+---
+title: "Visualization A3"
+author: "Qian Yi"
+date: "12/9/2020"
+output: html_document
+---
+
+![](webimage/a3p1.png)
+
+![](webimage/a3p2.png)
+
+![](webimage/a3p3.png)
+
+![](webimage/a3p4.png)
+![](webimage/a3p5.png)
+![](webimage/a3p6.png)
+![](webimage/a3p7.png)
+

@@ -11,7 +11,7 @@
 
 
 
-<title>My Website</title>
+<title>Qian’s Website Home</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -278,13 +278,22 @@ $(document).ready(function () {
   <a href="about.html">About</a>
 </li>
 <li>
-  <a href="Assignment5.html">Visualization A5</a>
+  <a href="Assignment1.html">A1</a>
 </li>
 <li>
-  <a href="Assignment6.html">Visualization A6</a>
+  <a href="Assignment2.html">A2</a>
 </li>
 <li>
-  <a href="Assignment7.html">Visualization A7</a>
+  <a href="Assignment3.html">A3</a>
+</li>
+<li>
+  <a href="Assignment5.html">A5</a>
+</li>
+<li>
+  <a href="Assignment6.html">A6</a>
+</li>
+<li>
+  <a href="Assignment7.html">A7</a>
 </li>
 <li>
   <a href="project.html">Project</a>
@@ -301,14 +310,70 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">My Website</h1>
+<h1 class="title toc-ignore">Qian’s Website Home</h1>
 
 </div>
 
 
-<p>Hello, Website!</p>
-<p>For more information about simple R Markdown websites, please read the documentation at <a href="https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html" class="uri">https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html</a>.</p>
-<p>Please also note that simple R Markdown sites are <em>not</em> based on <strong>blogdown</strong>. They are probably good for websites with only a few Rmd documents. For larger-scale and more sophisticated websites (such as blogs), you may want to use <strong>blogdown</strong> instead: <a href="https://github.com/rstudio/blogdown" class="uri">https://github.com/rstudio/blogdown</a>.</p>
+<p>Hello, welcome to this website!</p>
+<p>This is Qian’s data visualization website. In this website, you will see all the assignments and the project. Here are the description and requirements for each assignment and project.</p>
+<div id="assignment-1" class="section level4">
+<h4>Assignment 1:</h4>
+<p>Explore sydneybeaches3.csv dataset and draw 3 conceptual data visualizations to describe different aspects of the data set, stating in each case the question to address with the visualization. These visualizations were hand drawings, but with enough detail (labels, shading, etc) to make the visualization clear to the reader.</p>
+</div>
+<div id="assignment-2" class="section level4">
+<h4>Assignment 2:</h4>
+<p>Provide critique and suggest improvements for a set of charts. Identify (1) Whether you feel the chart is good or bad (2) A criticism of the chart, and (3) Ways to improve the chart.</p>
+</div>
+<div id="assignment-3" class="section level4">
+<h4>Assignment 3:</h4>
+<p>Using the same dataset you used in A1:</p>
+<p>Visualize the data and make it as ugly as you can. Seriously. Really ugly it up. Disregard readability, clarity, and understanding. Maybe make it misleading. Go to town. How ugly can you go?</p>
+<div class="line-block">Edit your ugly chart to make it readable.<br />
+Change the aesthetic to make the readable chart look like it belongs in one of Nicholas Felton (Links to an external site.)’s reports.<br />
+Change the aesthetic to make the readable chart look like it came from a news publication.<br />
+Change the aesthetic to make the readable chart look like it belongs in an art gallery.<br />
+If you’re feeling bold, try visualizing the data in a medium you’re not used to.</div>
+</div>
+<div id="assignment-4" class="section level4">
+<h4>Assignment 4:</h4>
+<p>Data cleaning by R and python (not shown in this web)</p>
+</div>
+<div id="assignment-5" class="section level4">
+<h4>Assignment 5:</h4>
+<p>Use the data provided in the files above to create analysis and visualizations that answer the posed question or complete the task.</p>
+<p>Explore all accounts. Create visualizations that combine or these account characteristics:</p>
+<p>Whether an account has a credit card or not</p>
+<p>Whether an account has a loan or not</p>
+<p>The average balance for the account</p>
+<p>What is the distribution of all loans and what are their characteristics?</p>
+<p>Is there a relationship between a good or bad loan and the time between an account is opened an the loan is created? Is there a specific set of accounts that seem to be at higher or lower risk of defaulting?</p>
+<p>For the account with the highest number of transactions, make a time series line plot for the behavior of the account over time, including all debits and credits, the different methods, and the with the different categories.</p>
+<p>Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?</p>
+</div>
+<div id="assignment-6" class="section level4">
+<h4>Assignment 6:</h4>
+<p>Visualize historical US election data and unemployment rates across US counties using choropleths. Create three 3x2 panels of choropleths, one each for Texas, California and Pennsylvania. The rows will correspond to the years 2008, 2012 and 2016, and the columns will correspond to the percent of the vote received either the Democratic or Republican candidate for president (your choice), and the unemployment rate in that year.</p>
+<p>Create 6 choropleths:</p>
+<p>The proportion of the vote won by your chosen candidate in each county for each of the three elections, based on a map of US counties represented in the shapefiles mentioned above (3 choropleths)</p>
+<p>The unemployment rate in each county for each of the three election years (2008, 2012, 2016) using the US map of counties based on the same shapefiles as above. (3 choropleths)</p>
+</div>
+<div id="assignment-7" class="section level4">
+<h4>Assignment 7:</h4>
+<p>In this assignment you will visualize the flow of people between different states in the United States over the period of one year, using network graphs.</p>
+<p>You are required to choose New York, Texas and two other states as the origin states (where people lived the previous year) for this visualization, and show graphically the relative numbers of people that moved to the top 10 destination states (current state, in the data set) from each of the origin states. You are expected to create a single graphic for this project. For clarity, for each origin state, you will find the top 10 states that people moved to from that state in the year in question, and the union of those states will be represented as nodes in the graph. You will not consider migrations to other countries or US Territories (Puerto Rico, Guam and others), but only consider migrations to the 50 states and District of Columbia.</p>
+<ul>
+<li><p>You have to extract the data from this Excel file programmatically, i.e., using R and/or Python, not just copy it by hand to another Excel file. For this, you will have to open and understand the structure and format of the data in the file.</p></li>
+<li><p>You will need to extract the data in the form of a data frame with 3 columns: source, target and count; the last column will contain the numbers of people who migrated from the source state to the target state in 2018</p></li>
+<li><p>You can now use this data frame to create a graph object using igraph (R or Python), tidygraph (R) or networkx (Python)</p></li>
+<li><p>You will create a single network graph, where the width of each edge representing the number of people moving between the two states, the color of the edge denoting the state of origin, and preferably arrows denoting the direction of migration. These aspects are required. You can style other aspects of the graph as you choose to improve readability.</p></li>
+<li><p>Your submission will consist of one R Markdown file, named networks.Rmd and its corresponding HTML file networks.html, along with any files and folders created in the rendering process.</p></li>
+</ul>
+</div>
+<div id="project" class="section level4">
+<h4>Project:</h4>
+<p>In this project, I created pie chart, histogram, bar chart, violin plot, heatmap, geographical map, network, time series plot, text wordcloud, and text relative word frequency plot. Through these visualizations, we could generate some insights about UFO.</p>
+</div>
 
 
 

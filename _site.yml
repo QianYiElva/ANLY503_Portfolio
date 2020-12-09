@@ -1,4 +1,4 @@
-name: "my-website"
+name: "Qian Yi Data Visualization Website"
 output_dir: "docs"
 navbar:
   title: "My Website"
@@ -7,11 +7,17 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
-    - text: "Visualization A5"
+    - text: "A1"
+      href: Assignment1.html
+    - text: "A2"
+      href: Assignment2.html
+    - text: "A3"
+      href: Assignment3.html
+    - text: "A5"
       href: Assignment5.html
-    - text: "Visualization A6"
+    - text: "A6"
       href: Assignment6.html
-    - text: "Visualization A7"
+    - text: "A7"
       href: Assignment7.html
     - text: "Project"
       href: project.html

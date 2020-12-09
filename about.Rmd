@@ -1,5 +1,11 @@
 ---
-title: "About This Website"
+title: "About Me"
 ---
 
-More about this website.
+#### Self Introduction:
+
+Hi everyone! Thanks for visiting my visualization website! 
+
+My name is Qian Yi, currently a second year Data Science major student in Georgetown University. I have passion analyzing data and build quantitative machine learning models. In my spare time, I like cooking and playing the guitar!
+
+![](webimage/IMG.jpg)

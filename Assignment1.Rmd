@@ -1,0 +1,16 @@
+---
+title: "Visualization A1"
+author: "Qian Yi"
+date: "12/9/2020"
+output: html_document
+---
+
+# Hand-drawing graphs
+
+![](webimage/a1p1.png)
+
+![](webimage/a1p2.png)
+
+![](webimage/a1p3.png)
+
+

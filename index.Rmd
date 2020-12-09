@@ -1,9 +1,87 @@
 ---
-title: "My Website"
+title: "Qian's Website Home"
 ---
 
-Hello, Website!
+Hello, welcome to this website!
 
-For more information about simple R Markdown websites, please read the documentation at https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html.
+This is Qian's data visualization website. In this website, you will see all the assignments and the project. 
+Here are the description and requirements for each assignment and project. 
 
-Please also note that simple R Markdown sites are _not_ based on **blogdown**. They are probably good for websites with only a few Rmd documents. For larger-scale and more sophisticated websites (such as blogs), you may want to use **blogdown** instead: https://github.com/rstudio/blogdown.
+
+#### Assignment 1: 
+
+Explore sydneybeaches3.csv dataset and draw 3 conceptual data visualizations to describe different aspects of the data set, stating in each case the question to address with the visualization. These visualizations were hand drawings, but with enough detail (labels, shading, etc) to make the visualization clear to the reader.
+
+
+#### Assignment 2: 
+
+Provide critique and suggest improvements for a set of charts. Identify (1) Whether you feel the chart is good or bad (2) A criticism of the chart, and (3) Ways to improve the chart.
+
+#### Assignment 3: 
+
+Using the same dataset you used in A1:
+
+Visualize the data and make it as ugly as you can. Seriously. Really ugly it up. Disregard readability, clarity, and understanding. Maybe make it misleading. Go to town. How ugly can you go?
+
+| Edit your ugly chart to make it readable.
+| Change the aesthetic to make the readable chart look like it belongs in one of Nicholas Felton (Links to an external site.)’s reports.
+| Change the aesthetic to make the readable chart look like it came from a news publication.
+| Change the aesthetic to make the readable chart look like it belongs in an art gallery.
+| If you’re feeling bold, try visualizing the data in a medium you’re not used to.
+
+#### Assignment 4:
+
+Data cleaning by R and python (not shown in this web)
+
+#### Assignment 5:
+
+Use the data provided in the files above to create analysis and visualizations that answer the posed question or complete the task.
+
+Explore all accounts. Create visualizations that combine or these account characteristics:
+
+Whether an account has a credit card or not
+
+Whether an account has a loan or not
+
+The average balance for the account
+
+What is the distribution of all loans and what are their characteristics?
+
+Is there a relationship between a good or bad loan and the time between an account is opened an the loan is created? Is there a specific set of accounts that seem to be at higher or lower risk of defaulting?
+
+For the account with the highest number of transactions, make a time series line plot for the behavior of the account over time, including all debits and credits, the different methods, and the with the different categories.
+
+Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?
+
+
+#### Assignment 6:
+
+Visualize historical US election data and unemployment rates across US counties using choropleths. Create three 3x2 panels of choropleths, one each for Texas, California and Pennsylvania. The rows will correspond to the years 2008, 2012 and 2016, and the columns will correspond to the percent of the vote received either the Democratic or Republican candidate for president (your choice), and the unemployment rate in that year.
+
+Create 6 choropleths:
+
+The proportion of the vote won by your chosen candidate in each county for each of the three elections, based on a map of US counties represented in the shapefiles mentioned above (3 choropleths)
+
+The unemployment rate in each county for each of the three election years (2008, 2012, 2016) using the US map of counties based on the same shapefiles as above. (3 choropleths)
+
+#### Assignment 7:
+
+In this assignment you will visualize the flow of people between different states in the United States over the period of one year, using network graphs.
+
+You are required to choose New York, Texas and two other states as the origin states (where people lived the previous year) for this visualization, and show graphically the relative numbers of people that moved to the top 10 destination states (current state, in the data set) from each of the origin states. You are expected to create a single graphic for this project. For clarity, for each origin state, you will find the top 10 states that people moved to from that state in the year in question, and the union of those states will be represented as nodes in the graph. You will not consider migrations to other countries or US Territories (Puerto Rico, Guam and others), but only consider migrations to the 50 states and District of Columbia.
+
+
+* You have to extract the data from this Excel file programmatically, i.e., using R and/or Python, not just copy it by hand to another Excel file. For this, you will have to open and understand the structure and format of the data in the file.
+
+* You will need to extract the data in the form of a data frame with 3 columns: source, target and count; the last column will contain the numbers of people who migrated from the source state to the target state in 2018
+
+* You can now use this data frame to create a graph object using igraph (R or Python), tidygraph (R) or networkx (Python)
+    
+* You will create a single network graph, where the width of each edge representing the number of people moving between the two states, the color of the edge denoting the state of origin, and preferably arrows denoting the direction of migration. These aspects are required. You can style other aspects of the graph as you choose to improve readability.
+
+* Your submission will consist of one R Markdown file, named networks.Rmd and its corresponding HTML file networks.html, along with any files and folders created in the rendering process.
+
+#### Project: 
+
+In this project, I created pie chart, histogram, bar chart, violin plot, heatmap, geographical map, network, time series plot, text wordcloud, and text relative word frequency plot. Through these visualizations, we could generate some insights about UFO.
+
