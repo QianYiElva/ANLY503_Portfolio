@@ -7,17 +7,17 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
-    - text: "A1"
+    - text: "Assignment 1"
       href: Assignment1.html
-    - text: "A2"
+    - text: "Assignment 2"
       href: Assignment2.html
-    - text: "A3"
+    - text: "Assignment 3"
       href: Assignment3.html
-    - text: "A5"
+    - text: "Assignment 5"
       href: Assignment5.html
-    - text: "A6"
+    - text: "Assignment 6"
       href: Assignment6.html
-    - text: "A7"
+    - text: "Assignment 7"
       href: Assignment7.html
     - text: "Project"
       href: project.html
