@@ -23,9 +23,10 @@ library(SnowballC)
 library(wordcloud)
 library(RColorBrewer)
 library(quanteda)
+library(ggpubr)
 
 # data cleaning 
-ufo=read.csv('ufo_sighting_data.csv')
+ufo=read.csv('/Users/qianyi/Desktop/Data/ufo_sighting_data.csv')
 # keep records that in US only 
 ufo=ufo[ufo$country=='us', ]
 
@@ -69,6 +70,30 @@ ufo$longitude=as.numeric(ufo$longitude)
 ufo=ufo %>%na_if('') %>%na.omit
 
 ```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Design my own theme 
+# tutorial reference: https://rpubs.com/mclaire19/ggplot2-custom-themes
+# tutorial reference: http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements
+
+theme_my <- function(){ 
+    theme_minimal() %+replace%
+    theme(
+       text=element_text(family="Arial"),
+       panel.background = element_rect(fill = "white",colour = "white", size = 0.5, linetype = "solid"),
+      #grid elements
+      panel.grid.major = element_line(colour='lightblue', linetype = "twodash", size=0.30),         
+      panel.grid.minor = element_line(colour='lightblue',linetype = "twodash", size=0.25),
+      #text elements
+      plot.title = element_text(family = "Arial",size = 30,face = 'bold', hjust = 0.5),
+      plot.caption = element_text(family = "Arial", size = 9),            
+      axis.title = element_blank(),             
+      axis.text = element_blank(),
+      axis.line = element_blank()
+      )
+}
+```
+
 
 About
 =========================================
@@ -154,26 +179,48 @@ ggplot(df1, aes(x = 1, y = shape_count, fill = UFO_shape)) +
   coord_polar(theta='y') + 
   guides(fill=guide_legend(title="UFO Shapes", override.aes=list(colour=NA)))+
   scale_fill_hue(c=45, l=70)+ # Setting luminance and saturation (chromaticity)
-  theme_void()+ # remove the default theme 
-  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20))+
-  geom_label_repel(data = my_labels, aes(x = x.breaks, y = y.breaks, label = labels, fill = UFO_shape),label.padding = unit(0.13, "lines"),size = 2,show.legend = FALSE,inherit.aes = FALSE) # make sure the annotation not overlap each other 
+  theme_my()+ # remove the default theme 
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank(),
+        panel.grid.major = element_blank(),         
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  geom_label_repel(data = my_labels, aes(x = x.breaks, y = y.breaks, label = labels, fill = UFO_shape),label.padding = unit(0.13, "lines"),size = 2, show.legend = FALSE,inherit.aes = FALSE) # make sure the annotation not overlap each other 
 ```
 
 
 
 ### EDA 2: Histogram of UFO Time Duration--After the log operation, the time duration data are almost normally distributed.  
 
-```{r hist,fig.height = 10, fig.width = 18, fig.align = "center" }
-par(mfrow=c(1,2))
+```{r hist,fig.height = 10, fig.width = 20, fig.align = "center" }
+
 df2=ufo %>% select(c("UFO_shape","length_of_encounter_seconds")) 
 df2$length_of_encounter_seconds=as.numeric(df2$length_of_encounter_seconds)
-hist(df2$length_of_encounter_seconds,breaks=30, main="Seconds among UFOs (before log)", xlab="seconds", ylab="Frequency", col="lightpink")
+h1=ggplot(data=df2, mapping=aes(x=length_of_encounter_seconds))+
+  geom_histogram( color='darkgray',fill='lightpink')+theme_my()+theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))+
+  labs(title="Seconds among UFOs")+xlab('seconds')+ylab('Frequency')
 
 # since time have very large range, log value may better
 # convert seconds to log seconds 
 df2$length_of_encounter_seconds=log(df2$length_of_encounter_seconds)
 df2=df2 %>% rename(log_seconds=length_of_encounter_seconds)
-hist(df2$log_seconds, main="Log seconds among UFOs", xlab="log seconds", ylab="Frequency", col="lightblue")
+h2=ggplot(data=df2, mapping=aes(x=log_seconds))+
+  geom_histogram(binwidth=1,color='darkgray',fill='lightblue')+
+  theme_my()+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),
+        axis.title.y = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"))+
+  labs(title="Log seconds among UFOs")+xlab('seconds')+ylab('Frequency')
+
+ggarrange(h1, h2, ncol=2)
 ```
 
 
@@ -184,7 +231,7 @@ ggplot(df2, aes(x=UFO_shape, y=log_seconds, fill=UFO_shape)) +
   geom_violin(trim=FALSE)+
   scale_fill_hue(c=45, l=70)+
   geom_boxplot(width=0.2)+
-   labs(title="UFO Log Seconds Among Different Shapes")+theme_minimal()+
+   labs(title="UFO Log Seconds Among Different Shapes")+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=40), 
         axis.text.x = element_text(color = "black", size = 15, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 15, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -204,7 +251,7 @@ ggplot(df3, aes(year, fill="lightorgange"))+geom_bar()+
   scale_fill_hue(c=45, l=70)+
   labs(title="UFO Count from 1910 to 2014")+
   xlab('Year')+
-  ylab('Yearly Count of UFOs')+theme_minimal()+
+  ylab('Yearly Count of UFOs')+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), legend.position = "none",
         axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -221,7 +268,7 @@ df4=df4[with(df4,order(state_count,decreasing = TRUE)), ]
 ggplot(data = df4, mapping = aes(x = reorder(state.province, state_count), state_count)) + 
   geom_bar(aes(fill = state_count),stat = "identity") + coord_flip()+
   scale_fill_gradient(low = "lightyellow", high = "darkgreen", na.value = NA)+
-  labs(title="UFO Counts in Each States")+theme_minimal()+
+  labs(title="UFO Counts in Each States")+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
         axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -250,7 +297,7 @@ df1990$weekdays <- factor(df1990$weekdays, levels= c("Monday", "Tuesday", "Wedne
 
 ggplot(df1990, aes(month, weekdays, fill= count)) +
   geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
-   labs(title="Heatmap of Weekdays and Month for 1990s")+
+   labs(title="Heatmap of Weekdays and Month for 1990s")+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
         axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -272,7 +319,7 @@ df2000$weekdays <- factor(df2000$weekdays, levels= c("Monday", "Tuesday", "Wedne
 
 ggplot(df2000, aes(month, weekdays, fill= count)) +
   geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
-   labs(title="Heatmap of Weekdays and Month for 2000s")+
+   labs(title="Heatmap of Weekdays and Month for 2000s")+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
         axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -294,7 +341,7 @@ df2010$weekdays <- factor(df2010$weekdays, levels= c("Monday", "Tuesday", "Wedne
 
 ggplot(df2010, aes(month, weekdays, fill= count)) +
   geom_tile()+scale_fill_gradient(low = "lightyellow", high = "darkred", na.value = NA)+
-   labs(title="Heatmap of Weekdays and Month for 2010s")+
+   labs(title="Heatmap of Weekdays and Month for 2010s")+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
         axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -361,7 +408,7 @@ ggplot()+ geom_polygon(data=MergedStates, aes(x=long, y=lat, group=group, fill =
   geom_point(data=filter(geompoint),aes(x=longitude,y=latitude),alpha=.5,size=.5, color="darkred")+
   labs(title="UFO Records in US Main States")+
    xlab('Longitude')+
-  ylab('Latitude')+theme_minimal()+
+  ylab('Latitude')+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
         axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -421,7 +468,7 @@ ggplot(df8, aes(x=DATE, y=UFO_Count)) +
   scale_x_date(date_labels = "%Y %b %d")+
   labs(title="UFO Time Series from 1990 to 2014")+
    xlab('Date')+
-  ylab('UFO Count')+theme_minimal()+
+  ylab('UFO Count')+theme_my()+
   theme(plot.title = element_text(face = "bold",hjust = 0.5, size=20), 
         axis.text.x = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 10, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -520,9 +567,10 @@ ggplot(data = freq_data, aes(x = nrow(freq_data):1, y = frequency, color=group))
      coord_flip() +
      scale_x_continuous(breaks = nrow(freq_data):1,labels = freq_data$feature) +
      labs(x = NULL, y = "Relative Frequency", title='Relative Word Frequency for Top 4 Shapes')+
-  theme_bw()+theme(panel.border = element_rect(color = "darkgrey", size = 2),
-                   plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
-                   legend.title = element_blank(),
+  theme_my()+
+  theme(#panel.border = element_rect(color = "darkgrey", size = 2),
+        plot.title = element_text(face = "bold",hjust = 0.5, size=15), 
+        legend.title = element_blank(),
         axis.text.x = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.text.y = element_text(color = "black", size = 7, hjust = 0.5, vjust = 0.5, face = "plain"),
         axis.title.x = element_text(color = "black", size =10, hjust = 0.5, vjust = 0.5, face = "plain"),

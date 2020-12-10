@@ -21,11 +21,11 @@ library(tseries)
 
 #### Task 1. Explore all accounts. Create visualizations that combine or these account characteristics:
 
-* (1) Whether an account has a credit card or not
+* Whether an account has a credit card or not
 
-* (2) Whether an account has a loan or not
+* Whether an account has a loan or not
 
-* (3) The average balance for the account
+* The average balance for the account
 
 Exploration ： 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
@@ -183,12 +183,12 @@ df5_good=df5[which(df5$loan_default==FALSE),]
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 # plot bad loan date diff histogram 
 graph9=ggplot(data=df5_bad, mapping=aes(x=date_diff))+
-  geom_histogram(binwidth = 25)+
+  geom_histogram(binwidth = 25, fill='orange')+
   labs(x='date difference', y='Count', title='Bad Loans date difference distribution')
 
 # plot good loan date diff histogram 
 graph10=ggplot(data=df5_good, mapping=aes(x=date_diff))+
-  geom_histogram(binwidth = 25)+
+  geom_histogram(binwidth = 25, fill='orange')+
   labs(x='date difference', y='Count', title='Good Loans date difference distribution')
 
 graph11=ggplot(data=df5, mapping=aes(x=loan_default, y=date_diff, fill=loan_default))+
@@ -222,3 +222,4 @@ plot(ts(df6.2$balance), xlab='transaction records', ylab='balance amount')
 
 ```
 
+* From the time series, we could see that this account had fluctuated balance amount over time. This is because that the transaction amount was not very stable. 

@@ -10,7 +10,7 @@ Here are the description and requirements for each assignment and project.
 
 #### Assignment 1: 
 
-Explore sydneybeaches3.csv dataset and draw 3 conceptual data visualizations to describe different aspects of the data set, stating in each case the question to address with the visualization. These visualizations were hand drawings, but with enough detail (labels, shading, etc) to make the visualization clear to the reader.
+Explore "sydneybeaches3.csv" dataset and draw 3 conceptual data visualizations to describe different aspects of the data set, stating in each case the question to address with the visualization. These visualizations were hand drawings, but with enough detail (labels, shading, etc) to make the visualization clear to the reader.
 
 
 #### Assignment 2: 
@@ -31,7 +31,7 @@ Visualize the data and make it as ugly as you can. Seriously. Really ugly it up.
 
 #### Assignment 4:
 
-Data cleaning by R and python (not shown in this web)
+Data cleaning by R and python (not shown in this web since both R and Python code are for data cleaning)
 
 #### Assignment 5:
 
@@ -39,11 +39,11 @@ Use the data provided in the files above to create analysis and visualizations t
 
 Explore all accounts. Create visualizations that combine or these account characteristics:
 
-Whether an account has a credit card or not
+Whether an account has a credit card or not.
 
-Whether an account has a loan or not
+Whether an account has a loan or not.
 
-The average balance for the account
+The average balance for the account.
 
 What is the distribution of all loans and what are their characteristics?
 
@@ -57,8 +57,6 @@ Explore the validity of the data for the case whether or not an account has a cr
 #### Assignment 6:
 
 Visualize historical US election data and unemployment rates across US counties using choropleths. Create three 3x2 panels of choropleths, one each for Texas, California and Pennsylvania. The rows will correspond to the years 2008, 2012 and 2016, and the columns will correspond to the percent of the vote received either the Democratic or Republican candidate for president (your choice), and the unemployment rate in that year.
-
-Create 6 choropleths:
 
 The proportion of the vote won by your chosen candidate in each county for each of the three elections, based on a map of US counties represented in the shapefiles mentioned above (3 choropleths)
 
