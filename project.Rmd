@@ -1,6 +1,10 @@
 ---
 title: "Visualization Project: UFO sights in USA"
-output: flexdashboard::flex_dashboard
+output: 
+  flexdashboard::flex_dashboard:
+    navbar:
+      - { title: "Back to Website", href: "https://qianyielva.github.io/ANLY503_Portfolio/index", align: right }
+
 ---
 
 ```{r setup, include=FALSE}
@@ -578,9 +582,6 @@ ggplot(data = freq_data, aes(x = nrow(freq_data):1, y = frequency, color=group))
 
 
 ```
-
-
-
 
 
 
