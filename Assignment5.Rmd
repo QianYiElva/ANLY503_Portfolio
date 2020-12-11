@@ -223,3 +223,89 @@ plot(ts(df6.2$balance), xlab='transaction records', ylab='balance amount')
 ```
 
 * From the time series, we could see that this account had fluctuated balance amount over time. This is because that the transaction amount was not very stable. 
+
+#### Task 5. Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+# find all credit card transactions 
+df7=transaction[which(transaction$method=='credit card'),] 
+# find the distinct account_id 
+df7.1=df7 %>% group_by(account_id) %>% count() #807 rows, there are 807 accounts have associated credit card transactions 
+
+# find all the accounts with credit cards 
+df8=account[which(account$credit_cards>0),] %>% group_by(account_id) # 725 rows, there are 725 accounts have credit cards 
+df8=df8 %>% select(c('account_id', 'credit_cards'))
+# join the information 
+df9=df8 %>% full_join(df7.1, by = "account_id") %>% drop_na() #139 rows have both credit card records and transaction records 
+
+# Problem 
+# not all the accounts with credit cards have records of credit card transaction; 
+# not all the credit card tranactions have records of the credit card associated with the account id. 
+df10=data.frame(x=c('have credit card transaction','have credit cards','have credit card & transaction'), count=c(nrow(df7.1),nrow(df8),nrow(df9)))
+
+ggplot(data=df10,mapping=aes(x=x,y=count, fill=count, alpha=0.5))+
+  geom_col(width=0.5,show.legend = FALSE)+
+  geom_text(aes(label = count), size=8, show.legend = FALSE)+
+  theme(plot.title = element_text(color = "black", size = 15, vjust = 1,hjust = 0.5, face="bold"))+
+  labs(x='', y='Count', title='Compare information from two datasets')
+
+```
+
+* Python plot: 
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(reticulate)
+py_install("pandas")
+py_install("numpy")
+py_install("matplotlib")
+```
+
+
+
+```{python,echo=FALSE, warning=FALSE, message=FALSE, fig.align='center', include=FALSE}
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt 
+
+# data cleaning 
+account=pd.read_csv('/Users/qianyi/Desktop/Data/accounts_analytical.csv')
+transaction=pd.read_csv('/Users/qianyi/Desktop/Data/transactions.csv')
+
+# # find all accounts with credit card transactions # 807 rows 
+df_trans=transaction[transaction['method']=='credit card'].groupby('account_id')['id'].count().to_frame().rename(columns={'id':'count_transactions'})
+
+
+# find all account with credit card # 725 rows 
+df_cc=account[account['credit_cards']>0]
+df_cc.shape
+
+# find accounts with both credit card and transaction records
+df_both=df_trans.merge(df_cc, on='account_id', how='inner')
+df_both.shape
+
+label=['have transaction', 'have credit card', 'have both record']
+values=[df_trans.shape[0], df_cc.shape[0],df_both.shape[0]]
+
+index = np.arange(len(label))
+plt.bar(index, values,color=['r','g','b'])
+plt.ylabel('Count', fontsize=5)
+plt.xticks(index, label, fontsize=10, rotation=0)
+plt.title('Compare account information from both tabels')
+plt.savefig('/Users/qianyi/Desktop/ANLY503/503Portfolio/ANLY503_Portfolio/webimage/a5p5.png')
+plt.show()
+```
+
+
+```{r, echo=FALSE,fig.align='center', fig.height = 30, fig.width = 25}
+knitr::include_graphics('webimage/a5p5.png')
+```
+
+
+
+#### According to the visualizations, there are some issues worth noting:
+
+* Not all the credit card transactions have records of the credit card associated with the account id. This means the data did not have enough validity. There are some accounts should have credit card records before they have credit card transaction record. The information is not complete in the dataset. 
+
+
+
+
+
